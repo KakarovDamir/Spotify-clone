@@ -104,6 +104,15 @@ class AuthService {
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken }
   }
+
+  async getAllUsers(): Promise<IUser[]> {
+    return UserModel.find()
+  }
+
+  async logoutUser(token: string): Promise<boolean> {
+    const result = await RefreshTokenModel.deleteOne({ token })
+    return result.deletedCount > 0
+  }
 }
 
 export default AuthService

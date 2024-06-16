@@ -2,10 +2,10 @@ import React from "react";
 import { RiPlayFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-export const ArtistsCard = ({ title, description, imageUrl }) => {
+export const ArtistsCard = ({ id, title, description, imageUrl }) => {
   return (
     <Link
-      to="#"
+      to={`/artist/${id}`}
       className="bg-main-lg rounded-lg p-4 hover:bg-main-lgHover transition-all group"
     >
       <div className="mb-4 relative flex justify-center items-center">

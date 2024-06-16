@@ -1,29 +1,61 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const history = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/v5/auth/login",
+        formData
+      );
+      console.log("Signin successful:", response.data);
+      setIsAuthenticated(true);
+      history("/home");
+    } catch (error) {
+      console.error("Signin error:", error);
+    }
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
+  if (isAuthenticated) {
+    return <Navigate to={"/home"} />
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
       <div className="w-full max-w-md mx-auto p-8 bg-gray-800 rounded-lg shadow-lg">
         <div className="text-center mb-8">
-          <img
-            src="https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_RGB_White.png"
-            alt="Spotify Logo"
-            className="w-32 mx-auto"
-          />
           <h1 className="text-3xl font-bold mt-4">Sign In</h1>
         </div>
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-medium">Email</label>
             <input
               type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
               placeholder="Enter your email"
             />
@@ -33,6 +65,9 @@ export const Signin = () => {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Enter your password"
               />

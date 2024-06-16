@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { CreatePlaylistModal } from "../CreatePlaylist";
 import { AiFillHome } from "react-icons/ai";
 import { BiLibrary } from "react-icons/bi";
 import { HiMagnifyingGlass } from "react-icons/hi2";
@@ -7,6 +8,14 @@ import { Link } from "react-router-dom";
 import UsersActivity from "../UsersAcitvity";
 
 const Sidebar = ({ showSidebar, setShowSidebar }) => {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [playlists, setPlaylists] = useState([]);
+
+
+  const handleCreatePlaylist = (newPlaylist) => {
+    setPlaylists([...playlists, newPlaylist]);
+  };
+
   return (
     <div
       className={`bg-black fixed top-0 w-64 h-full p-6 flex flex-col justify-between ${
@@ -34,7 +43,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
           <ul className="flex flex-col gap-y-4">
             <li>
               <Link
-                to="/"
+                to="/home"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <AiFillHome className="text-2xl" /> Home
@@ -42,7 +51,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/search"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <HiMagnifyingGlass className="text-2xl" /> Search
@@ -50,13 +59,13 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li className="mb-8">
               <Link
-                to="#"
+                to="/library"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <BiLibrary className="text-2xl" /> Library
               </Link>
             </li>
-            <li>
+            <li onClick={() => setShowCreateModal(true)}>
               <Link
                 to="#"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
@@ -66,7 +75,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/liked"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <RiHeartFill className="text-2xl" /> Favorite Songs
@@ -76,28 +85,12 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
         </nav>
         <UsersActivity />
       </div>
-      <div>
-        <nav>
-          <ul className="flex flex-col gap-y-2">
-            <li>
-              <a
-                href="https://www.spotify.com/kz-ru/legal/cookies-policy/"
-                className="text-xs hover:underline"
-              >
-                Cookies
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.spotify.com/kz-ru/legal/privacy-policy/"
-                className="text-xs hover:underline"
-              >
-                Privacy Policy
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      {showCreateModal && (
+        <CreatePlaylistModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreatePlaylist}
+        />
+      )}
     </div>
   );
 };

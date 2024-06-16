@@ -46,6 +46,29 @@ class AuthController {
       res.status(500).json({ message: 'Error refreshing token' })
     }
   }
+
+  getAllUsers = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const users = await this.authService.getAllUsers()
+      res.status(200).json(users)
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching users' })
+    }
+  }
+
+  logoutUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { token } = req.body
+      const success = await this.authService.logoutUser(token)
+      if (!success) {
+        res.status(400).json({ message: 'Logout failed' })
+        return
+      }
+      res.status(200).json({ message: 'Logout successful' })
+    } catch (err) {
+      res.status(500).json({ message: 'Error logging out' })
+    }
+  }
 }
 
 export default AuthController

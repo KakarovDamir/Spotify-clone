@@ -1,12 +1,18 @@
 import React from "react";
-import {
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiMore2Fill,
-} from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { RiArrowLeftSLine, RiArrowRightSLine, RiMore2Fill } from "react-icons/ri";
+import { Link, useNavigate  } from "react-router-dom";
 
 const Header = ({ setShowSidebar }) => {
+  const history = useNavigate();
+
+  const goBack = () => {
+    history(-1);
+  };
+
+  const goForward = () => {
+    history(1);
+  };
+
   return (
     <header className="fixed left-0 top-0 md:ml-64 w-full md:w-[calc(100%-256px)] bg-[#0A0A0A]/90 flex items-center justify-between p-4 z-40">
       <div>
@@ -15,8 +21,8 @@ const Header = ({ setShowSidebar }) => {
           className="text-2xl hover:cursor-pointer p-2 box-content md:hidden"
         />
         <div className="hidden md:flex items-center gap-2 text-2xl">
-          <RiArrowLeftSLine className="p-2 box-content hover:cursor-pointer bg-main-gray rounded-full" />
-          <RiArrowRightSLine className="p-2 box-content hover:cursor-pointer bg-main-gray rounded-full" />
+          <RiArrowLeftSLine onClick={goBack} className="p-2 box-content hover:cursor-pointer bg-main-gray rounded-full" />
+          <RiArrowRightSLine onClick={goForward} className="p-2 box-content hover:cursor-pointer bg-main-gray rounded-full" />
         </div>
       </div>
       <div className="flex items-center gap-6">
