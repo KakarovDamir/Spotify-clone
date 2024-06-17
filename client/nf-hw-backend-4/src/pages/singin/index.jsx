@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useMusic } from "../../context/MusicContext";
 
 export const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,7 +10,8 @@ export const Signin = () => {
     password: "",
   });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const history = useNavigate();
+  const navigate = useNavigate();
+  const { setCurrentUser } = useMusic();
 
   const handleChange = (e) => {
     setFormData({
@@ -27,8 +29,13 @@ export const Signin = () => {
         formData
       );
       console.log("Signin successful:", response.data);
+
+      // Установка текущего пользователя в контексте
+      setCurrentUser(response.data.user);
+
       setIsAuthenticated(true);
-      history("/home");
+      navigate("/home");
+      
     } catch (error) {
       console.error("Signin error:", error);
     }
@@ -39,7 +46,7 @@ export const Signin = () => {
   };
 
   if (isAuthenticated) {
-    return <Navigate to={"/home"} />
+    return <Navigate to="/home" />;
   }
 
   return (

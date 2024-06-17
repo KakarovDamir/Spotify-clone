@@ -1,49 +1,50 @@
-import 'dotenv/config'
-import express from 'express'
-import { createServer } from 'http'
-import connectDB from './db'
-import globalRouter from './routes/global-router'
-import { logger } from './logger'
-import { createBucket, listBuckets } from './middlewares/s3-middlewares'
-import cors from 'cors'
-import WebSocket from 'ws'
+import 'dotenv/config';
+import express from 'express';
+import http from 'node:http';
+import connectDB from './db';
+import globalRouter from './routes/global-router';
+import { logger } from './logger';
+import cors from 'cors';
+import { Server } from 'socket.io';
 
-connectDB()
+connectDB();
 
-const app = express()
-const httpServer = createServer(app)
-const wss = new WebSocket.Server({ server: httpServer })
-
-let currentTrack = null;
-wss.on('connection', (ws) => {
-  console.log('Client connected');
-
-  if (currentTrack) {
-      ws.send(JSON.stringify({ type: 'CURRENT_TRACK', data: currentTrack }));
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
   }
+});
 
-  ws.on('message', (message) => {
-      const data = JSON.parse(message);
-      if (data.type === 'SET_CURRENT_TRACK') {
-          currentTrack = data.data;
-          wss.clients.forEach((client) => {
-              if (client !== ws && client.readyState === WebSocket.OPEN) {
-                  client.send(JSON.stringify({ type: 'CURRENT_TRACK', data: currentTrack }));
-              }
-          });
-      }
+let users = {};
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('registerUser', (data) => {
+    users[socket.id] = data.email;
+    io.emit('updateUsers', users);
   });
 
-  ws.on('close', () => {
-      console.log('Client disconnected');
+  socket.on('currentTrack', (data) => {
+    const userEmail = users[socket.id];
+    io.emit('updateTrack', { userEmail, track: data.track });
+  });
+
+  socket.on('disconnect', () => {
+    delete users[socket.id];
+    io.emit('updateUsers', users);
+    console.log('A user disconnected');
   });
 });
 
-app.use(express.json())
-app.use(logger)
-app.use(cors()) // Добавление CORS middleware
-app.use('/api/v5', globalRouter)
+app.use(express.json());
+app.use(logger);
+app.use(cors());
+app.use('/api/v5', globalRouter);
 
-httpServer.listen(5000, () => {
-  console.log('server running at http://localhost:5000/api/v5')
-})
+server.listen(5000, () => {
+  console.log('server running at http://localhost:5000/api/v5');
+});
